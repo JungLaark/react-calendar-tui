@@ -3,22 +3,15 @@ import Calendar from '@toast-ui/react-calendar';
 import 'tui-calendar/dist/tui-calendar.css';
 import dayjs from 'dayjs';
 import './CalendarHeader.css'
-
 // If you use the default popups, use this.
 import 'tui-date-picker/dist/tui-date-picker.css';
 import 'tui-time-picker/dist/tui-time-picker.css';
 
-// const calendar = new Calendar('#calendar', {
-//     defaultView: 'month',
-//     taskView: false,
-//     useCreationPopup: true,
-//     useDetailPopup: true
-// });
-
-
 var calendar = null;
 
 const CalendarMain = (props) => {
+
+    const [currentSchedule, setCurrentSchedule] = useState(props.originSchedule);
 
     const calendarRef = useRef();
 
@@ -35,38 +28,94 @@ const CalendarMain = (props) => {
     const [btnSelected, setBtnSelected] = useState(0);
 
     const onClickThisMonth = () => {
-        //calendar.state.today();
-        //calendar.getInstance today(); 
-        
-        if(calendar) calendar.today();
+        if(calendar){
+            calendar.today();
+        } 
         setCurrentDate(dayjs(calendar.getDate()._date).format('YYYY MM'));
     }
 
     const onClickPrevMonth = () => {
-        if(calendar)  calendar.prev(); 
+        if(calendar){
+            calendar.prev(); 
+        }  
         setCurrentDate(dayjs(calendar.getDate()._date).format('YYYY MM'));
     }
 
     const onClickNextMonth = () => {
-        if(calendar) calendar.next(); 
+        if(calendar){
+            calendar.next();   
+        } 
         setCurrentDate(dayjs(calendar.getDate()._date).format('YYYY MM'));
     }
 
     const onClickChangeViewMonth = (e) => {
-        if(calendar) calendar.changeView("month", true);
+        if(calendar){
+            calendar.changeView("month", true);
+        } 
         setBtnSelected(e.target.id);
     }
 
     const onClickChangeViewWeek = (e) => {
-        if(calendar)  calendar.changeView("week", true);
+        if(calendar){
+            calendar.changeView("week", true);
+        }  
         setBtnSelected(e.target.id);
     }
 
     const onClickChangeViewDay = (e) => {
-        if(calendar)  calendar.changeView("day", true);
+        if(calendar){
+            calendar.changeView("day", true);
+        }  
         setBtnSelected(e.target.id);
     }
-    /*header end*/
+
+    /**CREATE SCHEDULE*/
+    const onCreateSchedule = (e)  => {
+
+        if(!calendar){
+            return;
+        }
+
+        const newSchedule = {
+            id: String(Math.random() * 1000),
+            calendarId: 'test calendar',
+            title: e.title,
+            category: e.isAllDay ? 'allday' : 'time',
+            start: e.start,
+            end: e.end
+        }
+
+        calendar.createSchedules([newSchedule]);
+        setCurrentSchedule([...currentSchedule, newSchedule]);
+
+        console.log('onCreateSchedule state : ' + JSON.stringify(currentSchedule));
+    }
+
+    /**UPDATE SCHEDULE */
+    const onUpdateSchedule = (e) => {
+
+        console.log('Before update state : ' + JSON.stringify(currentSchedule));
+
+        setCurrentSchedule(currentSchedule.filter(id => id !== e.schedule.id));
+
+        console.log('onUpdateSchedule : ' + JSON.stringify(e));
+        const {schedule, changes} = e;
+
+        calendar.updateSchedule(schedule.id, schedule.calendarId, changes);
+
+        setCurrentSchedule([...currentSchedule, e.schedule]);
+        console.log('AFTER UPDATE state : ' + JSON.stringify(currentSchedule));
+    }
+
+    /**DELETE SCHEDULE */
+    const onDeleteSchedule = (e) => {
+        const {schedule} = e;
+        calendar.deleteSchedule(schedule.id, schedule.calendarId);
+        setCurrentSchedule(currentSchedule.filter(id => id !== e.schedule.id));
+
+        console.log('AFTER DELETE STATE : ' + JSON.stringify(currentSchedule));
+    }
+
 
     return (
         <>
@@ -104,21 +153,15 @@ const CalendarMain = (props) => {
                 <div className="topnav">
                     <input type="text" placeholder="Search.."></input>
                 </div>
-{/*                 
-                <div class="dropdown" style={{float:'right', borderRadius:'5px'}}>
-                    <button class="dropbtn">All</button>
-                    <div class="dropdown-content">
-                        <a href="#">Link 1</a>
-                        <a href="#">Link 2</a>
-                        <a href="#">Link 3</a>
-                </div>
-                </div>    */}
             </div>
             <Calendar id='calendar' ref={calendarRef}
                       onPrev={onClickPrevMonth}
                       onToday={onClickThisMonth}
                       onNext={onClickNextMonth}
                       onChangeView={onClickChangeViewMonth}
+                      onBeforeCreateSchedule={onCreateSchedule}
+                      onBeforeDeleteSchedule={onDeleteSchedule}
+                      onBeforeUpdateSchedule={onUpdateSchedule}
         height="900px"
         calendars={[
             {

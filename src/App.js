@@ -10,39 +10,10 @@ const sampleSchedule = [
         calendarId: "0",
         title: "TOAST UI Calendar Study",
         category: "time",
-        dueDateClass: "",
         start,
         end,
     },
-    {
-        id: "2",
-        calendarId: "0",
-        title: "Practice",
-        category: "milestone",
-        dueDateClass: "",
-        start,
-        end,
-        isReadOnly: true,
-    },
-    {
-        id: "3",
-        calendarId: "0",
-        title: "FE Workshop",
-        category: "allday",
-        dueDateClass: "",
-        start,
-        end,
-        isReadOnly: true,
-    },
-    {
-        id: "4",
-        calendarId: "0",
-        title: "Report",
-        category: "time",
-        dueDateClass: "",
-        start,
-        end,
-    },
+   
 ];
 
 const App = () => {
